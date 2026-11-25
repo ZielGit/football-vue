@@ -1,54 +1,42 @@
-# football-vue
+# football-vue · SPA (Vue 3 + Vuetify + Pinia + TypeScript)
 
-This template should help get you started developing with Vue 3 in Vite.
+Frontend de la prueba técnica. Consume la API de **[football-laravel](../football-laravel)** (el README de ese repositorio explica cómo levantar todo con un solo `docker compose up`).
 
-## Recommended IDE Setup
+## Ejecutarlo
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+**Con Docker:** se construye y sirve desde el `compose.yml` de `football-laravel` (http://localhost:8080).
 
-## Recommended Browser Setup
+**En local (desarrollo):**
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
+cp .env.example .env      # VITE_API_URL=http://localhost:8000/api
 npm install
+npm run dev               # http://localhost:5173
+npm run build             # chequeo de tipos + build de producción
 ```
 
-### Compile and Hot-Reload for Development
+Requiere Node 20.19+ (probado con Node 22). La API debe estar en marcha y permitir el origen de la SPA (`CORS_ALLOWED_ORIGINS`).
 
-```sh
-npm run dev
-```
+Usuarios de prueba: `admin@football.test / Admin123!`, `editor@football.test / Editor123!`, `viewer@football.test / Viewer123!`.
 
-### Type-Check, Compile and Minify for Production
+## Qué incluye
 
-```sh
-npm run build
-```
+| Requisito                               | Dónde                                                                                                                                                           |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1 · SPA Vue 3 + Vue Router, responsive | `src/router`, `src/layouts/AppLayout.vue` (menú lateral en escritorio, cajón en móvil; tarjetas y tablas que se adaptan)                                        |
+| F2 · Login y sesión vencida             | `src/views/LoginView.vue`; un 401 en cualquier llamada limpia la sesión y vuelve al login con aviso (`src/main.ts`, `src/api/http.ts`)                          |
+| F3 · Ligas, equipos y jugadores         | `CompetitionsView`, `CompetitionDetailView` (importar y ver el avance), `TeamsView`, `TeamDetailView`, `PlayersView`                                            |
+| F4 · Usuarios, roles y permisos         | `UsersView` + `UserFormDialog`, `RolesView`; menú y rutas según permisos                                                                                        |
+| F5 · Experiencia de uso                 | Carga, listas vacías, errores con _Reintentar_, búsqueda con _debounce_, filtros, paginación, avisos claros para el límite de football-data (429) y caída (503) |
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## Decisiones
 
-```sh
-npm run test:unit
-```
+- **Permisos en JS puro (sin CASL):** `GET /me` entrega `permissions`; el _store_ de sesión expone `can()`/`canAny()`, la directiva `v-can` y el _guard_ del router usan `meta.permission`. Es solo UX: el servidor decide siempre (403).
+- **Importar una liga** es asíncrono: la SPA consulta `import-status` cada 3 s mostrando el estado (en cola, importando, esperando cupo, importada, fallida).
+- **Errores normalizados:** `ApiError` (`src/api/errors.ts`) traduce el formato de error de la API a mensajes entendibles; las vistas nunca manejan errores de Axios.
+- **Reutilización:** `usePagedList` (listas paginadas), `PageHeader`, `EmptyState`, `ErrorAlert`, `ConfirmDialog`, `SearchField`, `ImportStatusChip`.
+- **Versiones:** Vue 3.5, Vue Router 4, Pinia 3, **Vuetify 3** (acordado), Vite 7, TypeScript 5.9.
 
-### Lint with [ESLint](https://eslint.org/)
+## CI
 
-```sh
-npm run lint
-```
+`.github/workflows/ci.yml`: `npm ci`, chequeo de tipos (`vue-tsc`) y build de producción.
