@@ -1,6 +1,6 @@
 # football-vue · SPA (Vue 3 + Vuetify + Pinia + TypeScript)
 
-Frontend de la prueba técnica. Consume la API de **[football-laravel](../football-laravel)** (el README de ese repositorio explica cómo levantar todo con un solo `docker compose up`).
+Frontend de la prueba técnica. Consume la API de **[football-laravel](https://github.com/ZielGit/football-laravel)** (el README de ese repositorio explica cómo levantar todo con un solo `docker compose up`).
 
 ## Ejecutarlo
 
